@@ -1,5 +1,5 @@
-from flask import Flask, render_template, abort
-from forms import SignUpForm
+from flask import Flask, render_template, abort, session, redirect, url_for
+from forms import SignUpForm, LoginForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dfewfew123213rwdsgert34tgfd1234trgf'
@@ -43,15 +43,31 @@ def sign_up():
 
     # Add a new user if the validation check passes
     if form.validate_on_submit():
-        formId = len(users) + 1
-        formName = form.name.data
-        formEmail = form.email.data
-        formPassword = form.password.data
-        users.append({"id": formId, "full_name": formName, "email": formEmail, "password": formPassword})
-
+        newUser = {"id": len(users) + 1, "full_name": form.name.data,
+            "email": form.email.data, "password": form.password.data}
+        users.append(newUser)
         return render_template("signup.html", message = "Success!")
 
     return render_template("signup.html", form = form)
+
+@app.route("/login", methods=["POST", "GET"])
+def login():
+    form = LoginForm()
+    # Authenticate user
+    if form.validate_on_submit():
+        for user in users:
+            if user["email"] == form.email.data and user["password"] == form.password.data:
+                session["user"] = user
+                return render_template("login.html", message = "Login Succesfull!")
+            else:
+                return render_template("login.html", message = "Invalid Credentials", form = form)
+    return render_template("login.html", form = form)
+
+@app.route("/logout")
+def logout():
+    if 'user' in session:
+        session.pop('user')
+    return redirect(url_for('homepage'))
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=3000)
