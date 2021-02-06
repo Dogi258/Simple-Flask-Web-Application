@@ -1,8 +1,44 @@
 from flask import Flask, render_template, abort, session, redirect, url_for
 from forms import SignUpForm, LoginForm
+from flask_sqlalchemy import SQLAlchemy
 
+# Configuration
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dfewfew123213rwdsgert34tgfd1234trgf'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///paws.db'
+db = SQLAlchemy(app)
+
+# Model for Pets
+class Pet(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    age = db.Column(db.String(50), nullable=False)
+    bio = db.Column(db.String(50), nullable=False)
+    postedBy = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+# Model for Users
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50), nullable=False)
+    pets = db.relationship('Pet', backref = 'user')
+
+# Creates the tables
+db.create_all()
+
+# Create "team" user and add it to session
+team = User(name = "Pet Rescue Team", email = "team@petrescue.co", password = "adminpass")
+db.session.add(team)
+
+# Commit changes in the session
+try:
+    db.session.commit()
+except Exception as e: 
+    db.session.rollback()
+finally:
+    db.session.close()
+
 
 """Information regarding the Pets in the System."""
 pets = [
@@ -12,10 +48,7 @@ pets = [
             {"id": 4, "name": "Mr. Furrkins", "age": "5 years", "bio": "Probably napping."}, 
         ]
 
-"""Information regarding the Users in the System."""
-users = [
-            {"id": 1, "full_name": "Pet Rescue Team", "email": "team@pawsrescue.co", "password": "adminpass"},
-        ]
+
 
 @app.route("/")
 def homepage():
@@ -43,11 +76,26 @@ def sign_up():
 
     # Add a new user if the validation check passes
     if form.validate_on_submit():
-        newUser = {"id": len(users) + 1, "full_name": form.name.data,
-            "email": form.email.data, "password": form.password.data}
-        users.append(newUser)
+        # Create a new user with the form parameters
+        newUser = User(id = len(User.query.all()) + 1, name = form.name.data,
+                        email = form.email.data, password = form.password.data)
+        # Add the user to the database session
+        db.session.add(newUser)
+        # Try to commit the changes to the database session
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            # If we are caught in in the exception, it means that the uniqe flag for email was raised,
+            # therfore, we render the template agin with a message to the user that the email already
+            # exist
+            return render_template("signup.html", form = form, message = "This Email already exists in the system! Please Log in instead.")
+        finally:
+            db.session.close()
+        # Render the template again with a successs message
         return render_template("signup.html", message = "Success!")
-
+    # Default view for the sign up page
     return render_template("signup.html", form = form)
 
 @app.route("/login", methods=["POST", "GET"])
@@ -55,12 +103,13 @@ def login():
     form = LoginForm()
     # Authenticate user
     if form.validate_on_submit():
-        for user in users:
-            if user["email"] == form.email.data and user["password"] == form.password.data:
-                session["user"] = user
-                return render_template("login.html", message = "Login Succesfull!")
-            else:
-                return render_template("login.html", message = "Invalid Credentials", form = form)
+        user = User.query.filter(User.email == form.email.data, User.password == form.password.data).first()
+        if user:
+            print("I am a print statment in login")
+            session['user'] = user.id
+            return render_template("login.html", message = "Login Succesfull!")
+        else:
+            return render_template("login.html", message = "Invalid Credentials", form = form)
     return render_template("login.html", form = form)
 
 @app.route("/logout")
