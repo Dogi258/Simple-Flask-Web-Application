@@ -12,7 +12,7 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators = [InputRequired(), Email()])
+    email = StringField('Email Adress', validators = [InputRequired(), Email()])
     password = PasswordField('Password', validators = [InputRequired()])
     submit = SubmitField('Login')
 

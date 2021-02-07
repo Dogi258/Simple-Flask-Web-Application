@@ -16,31 +16,37 @@ Login
 
 {% if form %}
 <form action="{{url_for('login')}}" method="POST" style="padding:5px;">
-
     <!-- Email Field -->
-    {{ form.email.label }}: <br>
-    {{ form.email }} 
-    <br>
+    <div class="mb-3">
+        {{ form.email.label(class_ = 'form-label') }}
+        {{ form.email(class_='form-control') }} 
+        <div class="form-text">We'll never share your email with anyone else.</div>
+    </div>
+    <!-- Email Errors -->
     {% if form.email.errors %}
-        {% for error in form.email.errors %}
-        <b style="color:tomato;"> {{ error }} </b> 
-        <br>
-        {% endfor %}
+        <ul class="list-group"></ul>
+            {% for error in form.email.errors %}
+                <li class="list-group-item list-group-item-danger">{{ error }}</li>
+            {% endfor %}
+        </ul>       
     {% endif %}
 
     <!-- Password Field -->
-    {{ form.password.label }}: <br>
-    {{ form.password }}
-    <br>
+    <div class="mb-3">
+      {{ form.password.label(class_='form-label') }}
+      {{ form.password(class_='form-control') }}
+    </div>
+    <!-- Password Errors -->
     {% if form.password.errors %}
         {% for error in form.password.errors %}
-        <b style="color:tomato;"> {{ error }} </b> 
-        <br>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-danger">{{ error }}</li>
+        </ul>
         {% endfor %}
     {% endif %}
 
     {{ form.csrf_token }}
-    {{ form.submit }}
+    {{ form.submit(class_='btn btn-primary') }}
 </form> 
 {% endif %}
 {% endblock %}
