@@ -15,3 +15,9 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators = [InputRequired(), Email()])
     password = PasswordField('Password', validators = [InputRequired()])
     submit = SubmitField('Login')
+
+class EditPetForm(FlaskForm):
+    name = StringField("Pet's Name: ")
+    age = StringField("Pet's Age: ")
+    bio = StringField("Pet's Bio: ")
+    submit = SubmitField('Edit Pet')
