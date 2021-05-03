@@ -1,15 +1,9 @@
-#title {
-    padding: 10px;
-    color: #464646;
-}
 body {
-    background: burlywood;
+    background:burlywood;
 }
-table {
+
+.card-img-top {
     width: 100%;
-    text-align: center;
-}
-th, td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    height: 250px;
+    object-fit: cover;
 }

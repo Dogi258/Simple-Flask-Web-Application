@@ -3,11 +3,12 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock %} - Paws Rescue Center</title>
     <!-- Bootsrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
-    <!-- Paws Rescue Center CSS -->
+            <!-- Paws Rescue Center CSS -->
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
 </head>
 
@@ -44,9 +45,6 @@
                                 <a class="nav-link" href="{{url_for('login')}}">Log In</a>
                             </li>         
                         {% endif %}
-                               
-                        
-                        
                     </ul>
                 </div>
             </div>
@@ -54,7 +52,7 @@
     </header>
 
     <!-- Title Heading block -->
-    <h1 id="title">{% block heading %} {% endblock %}</h1>
+    {% block heading %} {% endblock %}
     
     <!-- Content block -->
     <div id="content">{% block content %} {% endblock %}</div>
